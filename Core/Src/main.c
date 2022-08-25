@@ -92,7 +92,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM6_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_TIM_Base_Start_IT(&htim6);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -100,27 +100,8 @@ int main(void)
   while (1)
   {
 
-	  if (HAL_TIM_Base_Start(&htim6) == HAL_OK)/* start timer with status check*/
 
-	  {
-		  tmr_counter++;
-		  HAL_TIM_Base_Stop(&htim6);
-	  }
-	  else
-	  {
-		  Error_Handler();
-	  }
 
-	  if (tmr_counter >= 5)
-	  {
-		  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);		/*LED switch on*/
-		  tmr_counter = 0;
-
-	  }
-	  else
-	  {
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_RESET);			/*LED switch off*/
-	  }
 
     /* USER CODE END WHILE */
 
@@ -187,15 +168,15 @@ static void MX_TIM6_Init(void)
 
   /* USER CODE END TIM6_Init 1 */
   htim6.Instance = TIM6;
-  htim6.Init.Prescaler = 255;
+  htim6.Init.Prescaler = PRESCALER;
   htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim6.Init.Period = 49999;
+  htim6.Init.Period = RELOAD;
   htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
   {
     Error_Handler();
   }
-  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_ENABLE;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
   {
@@ -283,11 +264,21 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-/*void HAL_TIM_TriggerCallback(TIM_HandleTypeDef *htim6)
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim6)
 {
 	tmr_counter++;
+	if (tmr_counter >= 5)
+		  {
+			  HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_SET);
+			  tmr_counter = 0;
+
+		  }
+		  else
+		  {
+		  HAL_GPIO_WritePin(LED_GREEN_GPIO_Port, LED_GREEN_Pin, GPIO_PIN_RESET);
+		  }
 }
-*/
+
 
 /* USER CODE END 4 */
 
